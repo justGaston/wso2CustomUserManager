@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  wso2is:
+    image: wso2/wso2is:latest
+    container_name: wso2is2
+    ports:
+      - "9443:9443"
+    environment:
+      - DATABASE_HOST=mysql
+      - DATABASE_PORT=3306
+      - DATABASE_NAME=wso2is_db
+      - DATABASE_USER=wso2is_user
+      - DATABASE_PASSWORD=wso2is_pass
+    depends_on:
+      - mysql
+    volumes:
+      - is_repository:/home/wso2carbon/wso2is/repository/deployment/server/
+      - ./org.wso2.custom.userstore.manager-1.0-SNAPSHOT.jar:/home/wso2carbon/wso2is-7.0.0/repository/components/dropins/org.wso2.custom.userstore.manager-1.0-SNAPSHOT.jar
+      # - ./deployment.toml:/home/wso2carbon/wso2is-7.0.0/repository/conf/deployment.toml
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql2
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: wso2is_db
+      MYSQL_USER: wso2is_user
+      MYSQL_PASSWORD: wso2is_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  is_repository:
+  mysql_data:

@@ -1,0 +1,17 @@
+[user_store]
+type = "database_unique_id"
+class = "org.wso2.custom.userstore.manager.CustomUserStoreManager"
+
+[server]
+hostname = "localhost"
+node_ip = "127.0.0.1"  # Cambia esto si es necesario
+
+[super_admin]
+username = "admin"
+password = "admin"
+
+[database.shared_db]
+type = "h2"
+url = "jdbc:h2:~/repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000"
+username = "wso2is"
+password = "wso2is"
