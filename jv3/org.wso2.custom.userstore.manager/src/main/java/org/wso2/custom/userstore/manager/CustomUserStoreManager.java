@@ -15,6 +15,7 @@ import org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.utils.Secret;
 
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,31 +54,44 @@ public class CustomUserStoreManager extends UniqueIDJDBCUserStoreManager {
 
 
     private String callHttpLoginEndpoint(String userName, String credential) {
-        System.out.println("llamando al login v2 *****************************************************************");
+        System.out.println("Llamando al login v3 *****************************************************************");
         HttpURLConnection connection = null;
         try {
-
-            URL url = new URL("http://192.168.0.177:8000/test");
+            URL url = new URL("https://api.teamcore.net/tr/auth/1/public/login");
             connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
+            connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
+
+            // Habilita la salida para permitir el uso de OutputStream
+            connection.setDoOutput(true);
+
+            String jsonInputString = "{"
+                    + "\"username\": \"snaveas@testing\","
+                    + "\"password\": \"arbelovers\","
+                    + "\"platform\": \"ios\","
+                    + "\"version\": \"\""
+                    + "}";
+
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
             int responseCode = connection.getResponseCode();
             System.out.println("Código de respuesta: " + responseCode);
 
             // Leer la respuesta del servidor
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"));
+            StringBuilder content = new StringBuilder();
             String inputLine;
-            StringBuffer content = new StringBuffer();
 
             while ((inputLine = in.readLine()) != null) {
                 content.append(inputLine);
             }
-
-            // Cerrar los streams
             in.close();
 
-            // Imprimir la respuesta
             System.out.println("Respuesta del servidor: " + content.toString());
+            return content.toString();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -86,7 +100,6 @@ public class CustomUserStoreManager extends UniqueIDJDBCUserStoreManager {
                 connection.disconnect();
             }
         }
-        return "true";
     }
 
     @Override
@@ -96,6 +109,9 @@ public class CustomUserStoreManager extends UniqueIDJDBCUserStoreManager {
         String jsonResponse = callHttpLoginEndpoint("patitoperez", "Simbalion");
         if (jsonResponse == null) {
             String reason = "Failed to call HTTP endpoint.";
+        }
+        else{
+            System.out.println(jsonResponse);
         }
 
         System.out.println("is local user out *****************************************************************");

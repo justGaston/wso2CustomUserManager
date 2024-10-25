@@ -18,8 +18,9 @@ services:
       - is_repository:/home/wso2carbon/wso2is/repository/deployment/server/
       - ./org.wso2.custom.userstore.manager-1.0-SNAPSHOT.jar:/home/wso2carbon/wso2is-7.0.0/repository/components/dropins/org.wso2.custom.userstore.manager-1.0-SNAPSHOT.jar
       - ./org.wso2.custom.userstore.manager-1.0-SNAPSHOT.jar:/home/wso2carbon/wso2is-7.0.0/repository/components/lib/org.wso2.custom.userstore.manager-1.0-SNAPSHOT.jar
-      - ./org.wso2.custom.userstore.manager-1.0-SNAPSHOT.jar:/home/wso2carbon/wso2is-7.0.0/repository/components/dropins/org.wso2.carbon.user.manager-4.4.0-SNAPSHOT.jar
-      - ./org.wso2.custom.userstore.manager-1.0-SNAPSHOT.jar:/home/wso2carbon/wso2is-7.0.0/repository/components/lib/org.wso2.carbon.user.manager-4.4.0-SNAPSHOT.jar
+      - ./user-mgt.xml:/home/wso2carbon/wso2is-7.0.0/repository/conf/user-mgt.xml
+      # - ./org.wso2.custom.userstore.manager-1.0-SNAPSHOT.jar:/home/wso2carbon/wso2is-7.0.0/repository/components/dropins/org.wso2.carbon.user.manager-4.4.0-SNAPSHOT.jar
+      # - ./org.wso2.custom.userstore.manager-1.0-SNAPSHOT.jar:/home/wso2carbon/wso2is-7.0.0/repository/components/lib/org.wso2.carbon.user.manager-4.4.0-SNAPSHOT.jar
       # - ./deployment.toml:/home/wso2carbon/wso2is-7.0.0/repository/conf/deployment.toml
 
   mysql:

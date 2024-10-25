@@ -17,7 +17,7 @@
 <UserManager xmlns:svns="http://org.wso2.securevault/configuration">
     <Realm>
         <Configuration>
-            <AddAdmin></AddAdmin>
+            <AddAdmin>true</AddAdmin>
             <AdminRole>admin</AdminRole>
             <AdminUser>
                 <UserName>admin</UserName>
@@ -31,7 +31,7 @@
             <Property name="initializeNewClaimManager">true</Property>
             <Property name="dataSource">jdbc/SHARED_DB</Property>
         </Configuration>
-        <UserStoreManager class="org.wso2.custom.userstore.manager.CustomUserStoreManager">
+        <UserStoreManager class="org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager">
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="StoreSaltedPassword">true</Property>
             <Property name="CaseInsensitiveUsername">true</Property>
