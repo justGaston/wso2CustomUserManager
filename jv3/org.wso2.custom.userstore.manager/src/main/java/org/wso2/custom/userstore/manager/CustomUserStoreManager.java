@@ -1,8 +1,6 @@
 package org.wso2.custom.userstore.manager;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -28,7 +26,6 @@ import java.util.Map;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -37,49 +34,50 @@ public class CustomUserStoreManager extends UniqueIDJDBCUserStoreManager {
 
 
     public CustomUserStoreManager() {
+        super();
+        System.out.println("Initialized custom manager ++++++++++++*****************************************************************");
 
     }
 
-    @Override
-    public boolean isLocalUserStore() {
-        return super.isLocalUserStore();
-    }
+
 
     public CustomUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties, ClaimManager
             claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
             throws UserStoreException {
 
         super(realmConfig, properties, claimManager, profileManager, realm, tenantId);
+        System.out.println("Constructor de user storage -----------------*****************************************************************");
+
     }
 
-    private String callHttpLoginEndpoint(String userName, Object credential) {
+
+
+    private String callHttpLoginEndpoint(String userName, String credential) {
+        System.out.println("llamando al login v2 *****************************************************************");
         HttpURLConnection connection = null;
         try {
 
-            URL url = new URL("http://127.0.0.1:8000/login");
+            URL url = new URL("http://192.168.0.177:8000/test");
             connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
+            connection.setRequestMethod("GET");
             connection.setRequestProperty("Content-Type", "application/json");
-            connection.setDoOutput(true);
+            int responseCode = connection.getResponseCode();
+            System.out.println("Código de respuesta: " + responseCode);
 
+            // Leer la respuesta del servidor
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
 
-            String candidatePassword = String.copyValueOf(((Secret) credential).getChars());
-            String jsonInputString = String.format("{\"user\": \"%s\", \"password\": \"%s\"}", userName, candidatePassword);
-
-
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes("utf-8");
-                os.write(input, 0, input.length);
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
             }
 
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-                StringBuilder response = new StringBuilder();
-                String responseLine;
-                while ((responseLine = br.readLine()) != null) {
-                    response.append(responseLine.trim());
-                }
-                return response.toString();
-            }
+            // Cerrar los streams
+            in.close();
+
+            // Imprimir la respuesta
+            System.out.println("Respuesta del servidor: " + content.toString());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -88,16 +86,42 @@ public class CustomUserStoreManager extends UniqueIDJDBCUserStoreManager {
                 connection.disconnect();
             }
         }
+        return "true";
+    }
+
+    @Override
+    public boolean isLocalUserStore() {
+        System.out.println("is local user *****************************************************************");
+
+        String jsonResponse = callHttpLoginEndpoint("patitoperez", "Simbalion");
+        if (jsonResponse == null) {
+            String reason = "Failed to call HTTP endpoint.";
+        }
+
+        System.out.println("is local user out *****************************************************************");
+
+
+        return super.isLocalUserStore();
+    }
+
+    @Override
+    public boolean doCheckExistingUser(String userName) throws UserStoreException {
+        return true;
+    }
+
+    @Override
+    public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
+        System.out.println("Authentication *****************************************************************");
+        System.out.println("***************************************************************** "+ userName);
+        return super.doAuthenticate(userName, credential);
     }
 
     @Override
     public AuthenticationResult doAuthenticateWithUserName(String userName, Object credential)
             throws UserStoreException {
+        System.out.println("do authentication custom manager *****************************************************************");
 
-        String jsonResponse = callHttpLoginEndpoint(userName, credential);
-        if (jsonResponse == null) {
-            String reason = "Failed to call HTTP endpoint.";
-        }
+        super.doAuthenticateWithUserName(userName, credential);
 
         boolean isAuthenticated = false;
         String userID = null;
@@ -174,6 +198,7 @@ public class CustomUserStoreManager extends UniqueIDJDBCUserStoreManager {
 
     @Override
     protected String preparePassword(Object password, String saltValue) throws UserStoreException {
+        System.out.println("prepare password *****************************************************************");
         if (password != null) {
             String candidatePassword = String.copyValueOf(((Secret) password).getChars());
             return passwordEncryptor.encryptPassword(candidatePassword);
@@ -183,7 +208,7 @@ public class CustomUserStoreManager extends UniqueIDJDBCUserStoreManager {
     }
 
     private AuthenticationResult getAuthenticationResult(String reason) {
-
+        System.out.println("get authentication result custom manager *****************************************************************");
         AuthenticationResult authenticationResult = new AuthenticationResult(
                 AuthenticationResult.AuthenticationStatus.FAIL);
         authenticationResult.setFailureReason(new FailureReason(reason));

@@ -17,3 +17,9 @@ async def login(request: LoginRequest):
     if request.user == "usuario_correcto" and request.password == "contrasena_correcta":
         return {"success": True}
     return {"success": False}
+
+@app.get("/test")
+async def test():
+    # Aquí puedes implementar la lógica de autenticación
+    # Por simplicidad, se verifica si el usuario y la contraseña son correctos
+    return {"success": True}
